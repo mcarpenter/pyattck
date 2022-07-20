@@ -8,7 +8,7 @@ from pydantic import DirectoryPath, FilePath, HttpUrl
 from requests.api import request
 
 from .utils.exceptions import UnknownFileError
-from .utils.utils import get_absolute_path, is_path, is_url
+from .utils.utils import get_absolute_path, is_path, is_web_url
 
 
 @define
@@ -48,7 +48,7 @@ class Configuration:
     def _validate_json_value(self, attribute, value):
         valid = False
         valid = is_path(value)
-        valid = is_url(value)
+        valid = is_web_url(value)
         if not valid:
             raise Exception("The provided value is neither a URL or file path")
 
@@ -120,7 +120,7 @@ class Options:
             "nist_controls_json",
             "generated_nist_json",
         ]:
-            if is_url(getattr(self.config, json_data)):
+            if is_web_url(getattr(self.config, json_data)):
                 try:
                     path = os.path.join(self.config.data_path, f"{json_data}.json")
                     if not os.path.exists(path) or force:
@@ -140,7 +140,7 @@ class Options:
             dict: The dictionary object which was retrieved.
         """
         data = getattr(self.config, value)
-        if is_url(data):
+        if is_web_url(data):
             return self._download_url_data(data)
         else:
             return self._read_from_disk(getattr(self.config, value))
